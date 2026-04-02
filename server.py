@@ -46,6 +46,16 @@ class CreateEndpointRequest(BaseModel):
 async def get_endponts():
     return [endpoint.dict() for endpoint in mock_endpoints.values()]
 
+@app.get("/")
+async def welcome():
+    return {
+        "name": "WVCXX MockLab",
+        "version": "1.0.0",
+        "status": "running",
+        "endpoints_count": len(mock_endpoints),
+        "message": "Создавай эндпоинты через GUI"
+    }
+
 @app.post("/api/endpoints")
 async def create_endpoint (request: CreateEndpointRequest):
     endpoint_id = str(uuid.uuid4())
