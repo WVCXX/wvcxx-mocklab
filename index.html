@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WVCXX MockLab</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #2d1b2e 0%, #4a1942 50%, #2d1b2e 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 10s ease infinite;
+            min-height: 100vh;
+            color: #fff0f5;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .star {
+            position: fixed;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .cloud {
+            position: fixed;
+            background: rgba(255, 240, 245, 0.15);
+            border-radius: 100%;
+            filter: blur(30px);
+            pointer-events: none;
+            z-index: 0;
+            animation: floatCloud 25s linear infinite;
+        }
+
+        @keyframes floatCloud {
+            from { transform: translateX(-20%) translateY(0); }
+            to { transform: translateX(120%) translateY(-20px); }
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            background: radial-gradient(circle, #f472b6 0%, #ec4899 50%, transparent 80%);
+            filter: blur(50px);
+            pointer-events: none;
+            z-index: 0;
+            animation: orbFloat 12s ease-in-out infinite;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+            50% { transform: translate(30px, -30px) scale(1.1); opacity: 0.5; }
+        }
+
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.4);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .sakura {
+            position: fixed;
+            top: -30px;
+            width: 25px;
+            height: 25px;
+            pointer-events: none;
+            z-index: 0;
+            animation: fall linear forwards;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-30px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: #f472b6;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatParticle 8s ease-in-out infinite;
+        }
+
+        @keyframes floatParticle {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .wave-bg {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            background: repeating-linear-gradient(45deg, #f472b6 0px, #f472b6 3px, transparent 3px, transparent 15px);
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+        }
+
+        .logo img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .logo img:hover {
+            transform: scale(1.1);
+        }
+
+        h1 {
+            font-size: 48px;
+            background: linear-gradient(135deg, #fbcfe8 0%, #f472b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #fbcfe8;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            background: rgba(255, 240, 245, 0.1);
+            border: 1px solid #fbcfe8;
+            border-radius: 40px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-box img {
+            width: 16px;
+            height: 16px;
+        }
+
+        .search-box input {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            width: 200px;
+        }
+
+        .search-box input::placeholder {
+            color: #fbcfe8;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: rgba(255, 240, 245, 0.1);
+            border: 1px solid #fbcfe8;
+            border-radius: 40px;
+            padding: 8px 16px;
+            color: #fbcfe8;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background: #ec4899;
+            border-color: #ec4899;
+            color: white;
+        }
+
+        .filter-btn:hover {
+            background: #ec4899;
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: rgba(255, 240, 245, 0.1);
+            border: 1px solid #fbcfe8;
+            border-radius: 40px;
+            padding: 8px 16px;
+            color: #fbcfe8;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .icon-btn img {
+            width: 14px;
+            height: 14px;
+        }
+
+        .icon-btn:hover {
+            background: #ec4899;
+            color: white;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 240, 245, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid rgba(251, 207, 232, 0.3);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(236, 72, 153, 0.2);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #f472b6;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #fbcfe8;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 240, 245, 0.2);
+            border: 1px solid #fbcfe8;
+            border-radius: 40px;
+            padding: 8px 16px;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-toggle img {
+            width: 16px;
+            height: 16px;
+        }
+
+        body.dark {
+            background: linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #0f0c29 100%);
+        }
+
+        body.dark .endpoint-card {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .server-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            padding: 12px 24px;
+            background: rgba(255, 240, 245, 0.1);
+            border-radius: 100px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid rgba(251, 207, 232, 0.3);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #f43f5e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .btn-create {
+            background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
+            border: none;
+            padding: 14px 32px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 auto 40px;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+        }
+
+        .btn-create img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(236, 72, 153, 0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #2d1b2e;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 28px;
+            animation: slideUp 0.3s ease;
+            border: 2px solid #fbcfe8;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            font-size: 24px;
+            color: #f472b6;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 32px;
+            color: #fbcfe8;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #fbcfe8;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 240, 245, 0.1);
+            border: 2px solid #fbcfe8;
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ec4899;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-submit img {
+            width: 18px;
+            height: 18px;
+        }
+
+        .endpoints-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
+        }
+
+        .endpoint-card {
+            background: rgba(45, 27, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border: 2px solid #fbcfe8;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .endpoint-card:hover {
+            transform: translateY(-4px);
+            border-image: linear-gradient(45deg, #f472b6, #ec4899) 1;
+            box-shadow: 0 20px 40px rgba(236, 72, 153, 0.3);
+        }
+
+        .endpoint-card.disabled {
+            opacity: 0.5;
+        }
+
+        .endpoint-card.active-glow {
+            box-shadow: 0 0 20px #ec4899;
+            border-color: #ec4899;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            background: rgba(251, 207, 232, 0.1);
+            border-bottom: 1px solid #fbcfe8;
+        }
+
+        .method-badge {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 12px;
+            color: white;
+        }
+
+        .method-GET { background: #10b981; }
+        .method-POST { background: #3b82f6; }
+        .method-PUT { background: #f59e0b; }
+        .method-DELETE { background: #ef4444; }
+        .method-PATCH { background: #8b5cf6; }
+
+        .path {
+            font-family: monospace;
+            font-size: 14px;
+            font-weight: 600;
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .path:hover {
+            color: #f472b6;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            background: rgba(251, 207, 232, 0.2);
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: monospace;
+            color: #fbcfe8;
+        }
+
+        .card-body {
+            padding: 16px 20px;
+        }
+
+        .card-body pre {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 12px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-size: 11px;
+            font-family: 'Fira Code', monospace;
+            color: #fbcfe8;
+            margin: 0;
+        }
+
+        .delay-badge {
+            margin-top: 12px;
+            padding: 6px 12px;
+            background: rgba(244, 63, 94, 0.2);
+            border-radius: 8px;
+            font-size: 12px;
+            color: #f472b6;
+            display: inline-block;
+        }
+
+        .card-footer {
+            padding: 12px 20px;
+            border-top: 1px solid #fbcfe8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .toggle-btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            background: rgba(236, 72, 153, 0.2);
+            color: #f472b6;
+        }
+
+        .toggle-btn.active {
+            background: rgba(236, 72, 153, 0.4);
+            color: #fbcfe8;
+        }
+
+        .delete-btn, .copy-btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .copy-btn {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+
+        .copy-btn img {
+            width: 12px;
+            height: 12px;
+        }
+
+        .delete-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .delete-btn img {
+            width: 12px;
+            height: 12px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ec4899, #f43f5e);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            font-weight: 600;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .skeleton {
+            background: rgba(255, 240, 245, 0.1);
+            border-radius: 20px;
+            height: 200px;
+            animation: skeletonPulse 1.5s infinite;
+        }
+
+        @keyframes skeletonPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(45, 27, 46, 0.5);
+            border-radius: 24px;
+            grid-column: 1 / -1;
+            border: 2px solid #fbcfe8;
+        }
+
+        .empty-state img {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 32px; }
+            .endpoints-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .stats { flex-direction: column; align-items: center; }
+            .toolbar { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <img src="images/theme.png" alt="theme" onerror="this.style.display='none'"> Тёмная тема
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <img src="images/logo.png" alt="logo" onerror="this.src='https://placehold.co/80x80?text=Logo'">
+            </div>
+            <h1>WVCXX MockLab</h1>
+            <div class="subtitle">API мок-сервер</div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalCount">0</div>
+                <div class="stat-label">Всего эндпоинтов</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="activeCount">0</div>
+                <div class="stat-label">Активных</div>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <div class="search-box">
+                <img src="images/search.png" alt="search" onerror="this.style.display='none'">
+                <input type="text" id="searchInput" placeholder="Поиск по пути...">
+            </div>
+            <div class="filter-group" id="filterGroup">
+                <button class="filter-btn active" data-filter="all">Все</button>
+                <button class="filter-btn" data-filter="GET">GET</button>
+                <button class="filter-btn" data-filter="POST">POST</button>
+                <button class="filter-btn" data-filter="PUT">PUT</button>
+                <button class="filter-btn" data-filter="DELETE">DELETE</button>
+            </div>
+            <div class="action-buttons">
+                <button class="icon-btn" onclick="exportEndpoints()">
+                    <img src="images/export.png" alt="export" onerror="this.style.display='none'"> Экспорт
+                </button>
+                <button class="icon-btn" onclick="importEndpoints()">
+                    <img src="images/import.png" alt="import" onerror="this.style.display='none'"> Импорт
+                </button>
+            </div>
+        </div>
+
+        <div class="server-status">
+            <div class="status-dot"></div>
+            <span>Статус сервера</span>
+            <span class="server-url" id="serverStatus">Проверка...</span>
+        </div>
+
+        <button class="btn-create" onclick="openModal()">
+            <img src="images/plus.png" alt="plus" onerror="this.style.display='none'">
+            Создать эндпоинт
+        </button>
+
+        <div id="endpointsContainer" class="endpoints-grid">
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Создать эндпоинт</h2>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <form id="endpointForm">
+                <div class="form-group">
+                    <label>Путь</label>
+                    <input type="text" id="path" placeholder="/api/users" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Метод</label>
+                        <select id="method">
+                            <option>GET</option>
+                            <option>POST</option>
+                            <option>PUT</option>
+                            <option>DELETE</option>
+                            <option>PATCH</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Код статуса</label>
+                        <input type="number" id="status" value="200">
+                    </div>
+                    <div class="form-group">
+                        <label>Задержка (мс)</label>
+                        <input type="number" id="delay" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Тело ответа (JSON)</label>
+                    <textarea id="responseBody" rows="8">{
+  "сообщение": "Привет от WVCXX",
+  "статус": "успех"
+}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Заголовки ответа (JSON)</label>
+                    <textarea id="responseHeaders" rows="4">{
+  "Content-Type": "application/json"
+}</textarea>
+                </div>
+                <button type="submit" class="btn-submit">
+                    <img src="images/check.png" alt="check" onerror="this.style.display='none'">
+                    Создать
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <audio id="clickSound" preload="auto">
+        <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        
+        function createStars() {
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 3 + 's';
+                document.body.appendChild(star);
+            }
+        }
+
+        function createClouds() {
+            for (let i = 0; i < 5; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                cloud.style.width = Math.random() * 200 + 100 + 'px';
+                cloud.style.height = cloud.style.width;
+                cloud.style.top = Math.random() * 50 + '%';
+                cloud.style.left = Math.random() * 100 + '%';
+                cloud.style.animationDuration = Math.random() * 20 + 15 + 's';
+                cloud.style.animationDelay = Math.random() * 10 + 's';
+                document.body.appendChild(cloud);
+            }
+        }
+
+        function createOrbs() {
+            for (let i = 0; i < 3; i++) {
+                const orb = document.createElement('div');
+                orb.className = 'orb';
+                orb.style.width = Math.random() * 300 + 200 + 'px';
+                orb.style.height = orb.style.width;
+                orb.style.left = Math.random() * 100 + '%';
+                orb.style.top = Math.random() * 100 + '%';
+                orb.style.animationDelay = Math.random() * 5 + 's';
+                document.body.appendChild(orb);
+            }
+        }
+
+        function addBgEffects() {
+            const waveDiv = document.createElement('div');
+            waveDiv.className = 'wave-bg';
+            document.body.appendChild(waveDiv);
+
+            const vignetteDiv = document.createElement('div');
+            vignetteDiv.className = 'vignette';
+            document.body.appendChild(vignetteDiv);
+        }
+
+        createStars();
+        createClouds();
+        createOrbs();
+        addBgEffects();
+
+        
+        let endpoints = [];
+        let currentFilter = 'all';
+        let searchTerm = '';
+
+        function playSound() {
+            const sound = document.getElementById('clickSound');
+            if (sound) sound.play().catch(e => console.log('звук не воспроизвёлся'));
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.background = isError ? 'linear-gradient(135deg, #ef4444, #e11d48)' : 'linear-gradient(135deg, #ec4899, #f43f5e)';
+            toast.innerText = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            showToast('📋 URL скопирован: ' + text);
+        }
+
+        function exportEndpoints() {
+            const data = JSON.stringify(endpoints, null, 2);
+            const blob = new Blob([data], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mocklab_backup_${new Date().toISOString().slice(0,19)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('📁 Экспорт выполнен');
+        }
+
+        function importEndpoints() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                const text = await file.text();
+                try {
+                    const imported = JSON.parse(text);
+                    for (const ep of imported) {
+                        await fetch('http://localhost:8000/api/endpoints', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({
+                                path: ep.path,
+                                method: ep.method,
+                                response_status: ep.response_status,
+                                response_body: ep.response_body,
+                                response_headers: ep.response_headers,
+                                delay_ms: ep.delay_ms
+                            })
+                        });
+                    }
+                    showToast(`✅ Импортировано ${imported.length} эндпоинтов`);
+                    loadEndpoints();
+                } catch (err) {
+                    showToast('❌ Ошибка импорта', true);
+                }
+            };
+            input.click();
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+            const btn = document.querySelector('.theme-toggle');
+            if (document.body.classList.contains('dark')) {
+                btn.innerHTML = '<img src="images/theme.png" onerror="this.style.display=\'none\'"> Розовая тема';
+            } else {
+                btn.innerHTML = '<img src="images/theme.png" onerror="this.style.display=\'none\'"> Тёмная тема';
+            }
+        }
+
+        function createSakura() {
+            const sakura = document.createElement('div');
+            sakura.className = 'sakura';
+            sakura.style.backgroundImage = "url('images/sakura.png')";
+            sakura.style.left = Math.random() * 100 + '%';
+            sakura.style.animationDuration = Math.random() * 5 + 4 + 's';
+            sakura.style.width = Math.random() * 20 + 15 + 'px';
+            sakura.style.height = sakura.style.width;
+            sakura.style.opacity = Math.random() * 0.6 + 0.3;
+            document.body.appendChild(sakura);
+            setTimeout(() => sakura.remove(), 8000);
+        }
+
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDuration = Math.random() * 4 + 4 + 's';
+            particle.style.width = Math.random() * 6 + 2 + 'px';
+            particle.style.height = particle.style.width;
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 8000);
+        }
+
+        setInterval(createSakura, 600);
+        setInterval(createParticle, 300);
+
+        let editingId = null;
+
+        async function checkServer() {
+            try {
+                const res = await fetch('http://localhost:8000/api/endpoints');
+                if (res.ok) {
+                    document.getElementById('serverStatus').innerHTML = '✅ Работает на порту 8000';
+                    document.getElementById('serverStatus').style.color = '#f472b6';
+                    loadEndpoints();
+                }
+            } catch (err) {
+                document.getElementById('serverStatus').innerHTML = '❌ Сервер не запущен';
+                document.getElementById('serverStatus').style.color = '#ef4444';
+                document.getElementById('endpointsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <img src="images/empty.png" alt="empty" onerror="this.style.display='none'">
+                        <h3>Сервер не запущен</h3>
+                        <p>Запусти сервер командой: python server.py</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadEndpoints() {
+            try {
+                const res = await fetch('http://localhost:8000/api/endpoints');
+                endpoints = await res.json();
+                
+                document.getElementById('totalCount').innerText = endpoints.length;
+                document.getElementById('activeCount').innerText = endpoints.filter(e => e.enabled).length;
+                
+                let filtered = endpoints;
+                if (currentFilter !== 'all') {
+                    filtered = filtered.filter(e => e.method === currentFilter);
+                }
+                if (searchTerm) {
+                    filtered = filtered.filter(e => e.path.toLowerCase().includes(searchTerm.toLowerCase()));
+                }
+                
+                const container = document.getElementById('endpointsContainer');
+                
+                if (filtered.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <img src="images/empty.png" alt="empty" onerror="this.style.display='none'">
+                            <h3>Ничего не найдено</h3>
+                            <p>Попробуй изменить поиск или фильтр</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = filtered.map(endpoint => `
+                    <div class="endpoint-card ${!endpoint.enabled ? 'disabled' : ''} ${endpoint.enabled ? 'active-glow' : ''}">
+                        <div class="card-header">
+                            <div class="method-badge method-${endpoint.method}">${endpoint.method}</div>
+                            <div class="path" onclick="copyToClipboard('http://localhost:8000${endpoint.path}')" title="Кликни чтобы скопировать URL">${escapeHtml(endpoint.path)}</div>
+                            <div class="status-badge">${endpoint.response_status}</div>
+                        </div>
+                        <div class="card-body">
+                            <pre>${escapeHtml(JSON.stringify(endpoint.response_body, null, 2))}</pre>
+                            ${endpoint.delay_ms > 0 ? `<div class="delay-badge">⏱️ Задержка ${endpoint.delay_ms} мс</div>` : ''}
+                        </div>
+                        <div class="card-footer">
+                            <button class="toggle-btn ${endpoint.enabled ? 'active' : ''}" onclick="toggleEndpoint('${endpoint.id}', ${!endpoint.enabled})">
+                                ${endpoint.enabled ? 'Активен' : 'Отключён'}
+                            </button>
+                            <div>
+                                <button class="copy-btn" onclick="copyToClipboard('http://localhost:8000${endpoint.path}')">
+                                    <img src="images/copy.png" alt="copy" onerror="this.style.display='none'"> URL
+                                </button>
+                                <button class="delete-btn" onclick="deleteEndpoint('${endpoint.id}')">
+                                    <img src="images/delete.png" alt="delete" onerror="this.style.display='none'"> Удалить
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('Ошибка:', err);
+            }
+        }
+
+        async function toggleEndpoint(id, enabled) {
+            playSound();
+            await fetch(`http://localhost:8000/api/endpoints/${id}/toggle`, { method: 'PATCH' });
+            showToast(enabled ? '✅ Эндпоинт включён' : '⛔ Эндпоинт отключён');
+            loadEndpoints();
+        }
+
+        async function deleteEndpoint(id) {
+            if (confirm('Удалить этот эндпоинт?')) {
+                playSound();
+                await fetch(`http://localhost:8000/api/endpoints/${id}`, { method: 'DELETE' });
+                showToast('🗑️ Эндпоинт удалён');
+                loadEndpoints();
+            }
+        }
+
+        function openModal() {
+            playSound();
+            editingId = null;
+            document.getElementById('modalTitle').innerText = 'Создать эндпоинт';
+            document.getElementById('endpointForm').reset();
+            document.getElementById('path').value = '';
+            document.getElementById('method').value = 'GET';
+            document.getElementById('status').value = '200';
+            document.getElementById('delay').value = '0';
+            document.getElementById('responseBody').value = '{\n  "сообщение": "Привет от WVCXX MockLab!",\n  "статус": "успех"\n}';
+            document.getElementById('responseHeaders').value = '{\n  "Content-Type": "application/json"\n}';
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        document.getElementById('endpointForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            playSound();
+            
+            const endpointData = {
+                path: document.getElementById('path').value,
+                method: document.getElementById('method').value,
+                response_status: parseInt(document.getElementById('status').value),
+                delay_ms: parseInt(document.getElementById('delay').value),
+                response_body: JSON.parse(document.getElementById('responseBody').value),
+                response_headers: JSON.parse(document.getElementById('responseHeaders').value)
+            };
+            
+            try {
+                const url = editingId 
+                    ? `http://localhost:8000/api/endpoints/${editingId}`
+                    : 'http://localhost:8000/api/endpoints';
+                const method = editingId ? 'PUT' : 'POST';
+                
+                await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(endpointData)
+                });
+                
+                closeModal();
+                showToast(editingId ? '✏️ Эндпоинт обновлён' : '✨ Эндпоинт создан');
+                loadEndpoints();
+            } catch (err) {
+                showToast('❌ Ошибка: ' + err.message, true);
+            }
+        });
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            loadEndpoints();
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                loadEndpoints();
+            });
+        });
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        checkServer();
+        setInterval(checkServer, 3000);
+    </script>
+</body>
+</html>
