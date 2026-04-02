@@ -134,10 +134,21 @@ async def mock_handler(request: Request, path: str):
         status_code = 404,
         content = {'error': f"No mock endpoint found for {method} {path}"}
     )
+
+from fastapi.responses import HTMLResponse
+
+@app.get("/")
+async def root():
+    try:
+        with open("index.html", "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    except:
+        return {"message": "WVCXX MockLab API работает", "endpoints": len(mock_endpoints)}
+    
 if os.path.exists("index.html"):
     app.mount("/", StaticFiles(directory=".", html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.environ.get("PORT", 8000))
+    port = int(os.environ.get("PORT", 8080))
     uvicorn.run(app, host="0.0.0.0", port=port)
